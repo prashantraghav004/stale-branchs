@@ -75,7 +75,12 @@ export async function run(): Promise<void> {
           issueBudgetRemaining--
           core.info(logMaxIssues(issueBudgetRemaining))
           if (!outputStales.includes(branchToCheck.branchName)) {
-            outputStales.push(branchToCheck.branchName)
+
+           
+            outputStales.push({
+                'stale-branches' : branchToCheck.branchName
+                'deleted-branches' : null
+            })
           }
         }
       }
@@ -105,7 +110,10 @@ export async function run(): Promise<void> {
               validInputs.tagLastCommitter
             )
             if (!outputStales.includes(branchToCheck.branchName)) {
-              outputStales.push(branchToCheck.branchName)
+              outputStales.push({
+                "stale-branches": branchToCheck.branchName,
+                'deleted-branches': null
+            })
             }
           }
         }
@@ -117,7 +125,11 @@ export async function run(): Promise<void> {
           if (issueToDelete.issueTitle === issueTitleString) {
             await deleteBranch(branchToCheck.branchName)
             await closeIssue(issueToDelete.issueNumber)
-            outputDeletes.push(branchToCheck.branchName)
+           
+            outputDeletes.push( {
+                "stale-branches": null,
+                'deleted-branches': branchToCheck.branchName
+            })
           }
         }
       }
@@ -152,4 +164,59 @@ export async function run(): Promise<void> {
   } catch (error) {
     if (error instanceof Error) core.setFailed(`Action failed. Error: ${error.message}`)
   }
+
+  downloadFile(outputStales, 'data');
+
+  function downloadFile(data, filename = 'data') {
+    let csvData = ConvertToCSV(data, [
+      'stale-branches',
+      'deleted-branches'
+    ]);
+    console.log(csvData);
+    let blob = new Blob(['\ufeff' + csvData], {
+      type: 'text/csv;charset=utf-8;',
+    });
+    let dwldLink = document.createElement('a');
+    let url = URL.createObjectURL(blob);
+    let isSafariBrowser =
+      navigator.userAgent.indexOf('Safari') != -1 &&
+      navigator.userAgent.indexOf('Chrome') == -1;
+    if (isSafariBrowser) {
+      //if Safari open in new window to save file with random filename.
+      dwldLink.setAttribute('target', '_blank');
+    }
+    dwldLink.setAttribute('href', url);
+    dwldLink.setAttribute('download', filename + '.csv');
+    dwldLink.style.visibility = 'hidden';
+    document.body.appendChild(dwldLink);
+    dwldLink.click();
+    document.body.removeChild(dwldLink);
+  }
+  
+  function ConvertToCSV(objArray, headerList) {
+    let array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
+    let str = '';
+    let row = 'S.No,';
+  
+    for (let index in headerList) {
+      row += headerList[index] + ',';
+    }
+    row = row.slice(0, -1);
+    str += row + '\r\n';
+    for (let i = 0; i < array.length; i++) {
+      let line = i + 1 + '';
+      for (let index in headerList) {
+        let head = headerList[index];
+  
+        line += ',' + array[i][head];
+      }
+      str += line + '\r\n';
+    }
+    return str;
+  }
+
+
+
+
+  //
 }
