@@ -126,7 +126,7 @@ export async function run(): Promise<void> {
             await deleteBranch(branchToCheck.branchName)
             await closeIssue(issueToDelete.issueNumber)
            
-            outputDeletes.push( {
+            outputStales.push({
                 "stale-branches": null,
                 'deleted-branches': branchToCheck.branchName
             })
@@ -168,6 +168,7 @@ export async function run(): Promise<void> {
   downloadFile(outputStales, 'data');
 
   function downloadFile(data, filename = 'data') {
+    console.log("++++++++++++++++CCCCCCCCOOOOOOOO")
     let csvData = ConvertToCSV(data, [
       'stale-branches',
       'deleted-branches'
