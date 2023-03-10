@@ -1,0 +1,47 @@
+name: 'Stale Branches'
+description: 'Finds and deletes stale branches'
+author: 'Chris Kerins'
+inputs:
+  repo-token:
+    description: 'The token to be used to auth with GitHubs API. Can be passed in using `{{ secrets.GITHUB_TOKEN }}`'
+    required: false
+    default: ${{ github.token }}
+  days-before-stale:
+    description: 'Number of days a branch has been inactive before it is considered stale. Default: 120.'
+    required: false
+    default: '120'
+  days-before-delete:
+    description: 'Number of days a branch has been inactive before it is deleted. Default: 180.'
+    required: false
+    default: '180'
+  comment-updates:
+    description: 'If this is enabled, a comment with updated information will be added to existing issues each workflow run.'
+    required: false
+    default: false
+  max-issues:
+    description: 'This dictates the number of Stale issues that can exist. It also limits the number of branches that can be deleted per run.'
+    required: false
+    default: '20'
+  tag-committer:
+    description: 'When an issue is opened, this will tag the stale branchs last committer in the comments.'
+    required: false
+    default: false
+  stale-branch-label:
+    description: 'Label to be applied to issues created for stale branches.'
+    required: false
+    default: 'stale branch 🗑️'
+  compare-branches:
+    description: 'Compares current branch with default branch. Options: off | info | save'
+    required: false
+    default: 'off'
+outputs:
+  deleted-branches:
+    description: 'List of all deleted branches.'
+  stale-branches:
+    description: 'List of all stale branches.'
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
+branding:
+  icon: 'delete'
+  color: 'blue'
