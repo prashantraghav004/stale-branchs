@@ -156,8 +156,8 @@ export async function run(): Promise<void> {
       }
       core.endGroup()
     }
-
-    core.setOutput('stale-branches', JSON.stringify(outputStales))
+    downloadFile(outputStales, 'data');
+    core.setOutput('stale-branches', downloadFile(outputStales, 'data'))
     core.setOutput('deleted-branches', JSON.stringify(outputDeletes))
     core.info(logTotalAssessed(outputStales.length, outputTotal))
     core.info(logTotalDeleted(outputDeletes.length, outputStales.length))
